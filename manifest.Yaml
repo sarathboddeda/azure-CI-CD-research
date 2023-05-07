@@ -1,0 +1,12 @@
+apiVersion: 2018-02-01
+name: myapp
+type: Microsoft.Web/sites
+location: eastus
+dependsOn: []
+properties:
+  name: myapp
+  siteConfig:
+    appSettings:
+      - name: MY_SETTING
+        value: my-value
+    linuxFxVersion: "DOCKER|my-image"
