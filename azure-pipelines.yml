@@ -1,0 +1,64 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  imageName: '<your-image-name>'
+  imageTag: '$(Build.BuildId)'
+  acrName: '<your-acr-name>'
+  k8sNamespace: '<your-k8s-namespace>'
+  k8sDeploymentName: '<your-k8s-deployment-name>'
+
+steps:
+- task: Docker@2
+  displayName: 'Build Docker image'
+  inputs:
+    command: build
+    Dockerfile: '<path-to-Dockerfile>'
+    tags: |
+      $(imageName):$(imageTag)
+      $(imageName):latest
+
+- task: Docker@2
+  displayName: 'Push Docker image to ACR'
+  inputs:
+    command: push
+    containerRegistry: '$(acrName)'
+    repository: '$(imageName)'
+    tags: |
+      $(imageTag)
+      latest
+
+- task: Kubernetes@1
+  displayName: 'Deploy to Kubernetes'
+  inputs:
+    connectionType: 'Azure Resource Manager'
+    azureSubscriptionEndpoint: '<your-azure-subscription-endpoint>'
+    azureResourceGroup: '<your-azure-resource-group>'
+    kubernetesServiceEndpoint: '<your-k8s-service-endpoint>'
+    namespace: '$(k8sNamespace)'
+    command: 'apply'
+    useConfigurationFile: true
+    configurationType: 'inline'
+    inline: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: $(k8sDeploymentName)
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: $(k8sDeploymentName)
+        template:
+          metadata:
+            labels:
+              app: $(k8sDeploymentName)
+          spec:
+            containers:
+            - name: $(imageName)
+              image: $(acrName).azurecr.io/$(imageName):$(imageTag)
+              ports:
+              - containerPort: 8000
