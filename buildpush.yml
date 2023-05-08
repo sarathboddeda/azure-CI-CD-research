@@ -1,12 +1,10 @@
-- task: Docker@2
-  displayName: Build Docker image
+displayName: Build Docker image
   inputs:
     containerRegistry: 'sarathcicdresarch'
     repository: 'sarathbuild'
     command: 'build'
     Dockerfile: '**/Dockerfile'
 
-- task: Docker@2
   inputs:
     containerRegistry: 'sarathcicdresarch'
     repository: 'sarathbuild'
