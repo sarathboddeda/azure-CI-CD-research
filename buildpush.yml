@@ -5,7 +5,14 @@
     repository: 'sarathbuild'
     command: 'build'
     Dockerfile: '**/Dockerfile'
+
 - task: Docker@2
+  inputs:
+    containerRegistry: 'sarathcicdresarch'
+    repository: 'sarathbuild'
+    command: 'login'
+    arguments: '-u sarathcicdresarch -p 0H0s/JpAEKem+79qyz0Dx1b3FGICWdxZVTe5LpDL1k+ACRDUUWgI'
   displayName: Push Docker image
   inputs:
+  command: 'push'
     containerRegistry: 'sarathcicdresarch'
